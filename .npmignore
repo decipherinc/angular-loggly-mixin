@@ -1,0 +1,6 @@
+src/
+test/
+.*
+angular-loggly-mixin.js
+angular-loggly-mixin.min.js
+bower.json

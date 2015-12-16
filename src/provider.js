@@ -1,0 +1,166 @@
+'use strict';
+
+const {isString, isDefined, isObject, isFunction, extend} = require('angular');
+
+/**
+ * Format a message for sending to Loggly
+ * @param {string} level Log level (debug, info, warn, etc)
+ * @param {Object} [body={}] Extra message body
+ * @param {string} [body.desc='(no description)'] Message description
+ * @returns {Object}
+ */
+function defaultFormatter(level, body = {}) {
+  body.desc = body.desc || '(no description)';
+  return extend({level}, body);
+}
+
+// @ngInject
+function $logglyProvider($provide) {
+  const logglyConfig = {
+    logglyKey: '',
+    sendConsoleErrors: false
+  };
+
+  const providerConfig = {
+    allowUncaught: true,
+    logglyUrl: '//cloudfront.loggly.com/js/loggly.tracker.js',
+    levelMapping: {
+      debug: 'debug',
+      log: 'log',
+      info: 'info',
+      warn: 'warn',
+      error: 'error'
+    },
+    formatter: defaultFormatter
+  };
+
+  return {
+    /**
+     * Set the Loggly API key.  This must be set for operation.
+     * @param {string} [value] API key
+     * @this $logglyProvider
+     * @returns {$logglyProvider} $logglyProvider
+     */
+    logglyKey(value) {
+      if (isString(value)) {
+        logglyConfig.logglyKey = value;
+      }
+      return this;
+    },
+    /**
+     * Set the Loggly endpoint URL.
+     * @param {string} [value] URL; defaults to
+     * `//cloudfront.loggly.com/js/loggly.tracker.js`
+     * @this $logglyProvider
+     * @returns {$logglyProvider} $logglyProvider
+     */
+    logglyUrl(value) {
+      if (isString(value)) {
+        providerConfig.logglyUrl = value;
+      }
+      return this;
+    },
+    /**
+     * Set whether or not to pass thrown Errors through to Loggly.
+     * @param {boolean} [value] True/false
+     * @this $logglyProvider
+     * @returns {$logglyProvider} $logglyProvider
+     */
+    allowUncaught(value) {
+      if (isDefined(value)) {
+        providerConfig.allowUncaught = Boolean(value);
+      }
+      return this;
+    },
+    /**
+     * Set whether or not Loggly should trap calls to console.error()
+     * @param {boolean} [value] True/false
+     * @this $logglyProvider
+     * @returns {$logglyProvider} $logglyProvider
+     */
+    sendConsoleErrors(value) {
+      if (isDefined(value)) {
+        logglyConfig.sendConsoleErrors = Boolean(value);
+      }
+      return this;
+    },
+    /**
+     * Set the level mapping.  The level mapping is an object where the keys
+     * are the new method names, and the values are the method names in the
+     * original $log service.
+     * @param {Object} [value] Level mapping
+     * @this $logglyProvider
+     * @returns {$logglyProvider} $logglyProvider
+     * @example
+     * myModule.config($logglyProvider => {
+     *   $logglyProvider.levelMapping({omg: 'error'});
+     * })
+     *   .run($log => {
+     *     $log.omg('a terrible error!', {extra: 'data'});
+     *   });
+     */
+    levelMapping(value) {
+      if (isObject(value)) {
+        extend(providerConfig.levelMapping, value);
+      }
+      return this;
+    },
+    /**
+     * Convenience method to map a level.
+     * @param {string} [methodName='log'] New method name
+     * @param {string} [originalMethodName='log'] Original method name
+     * @this $logglyProvider
+     * @returns {$logglyProvider} $logglyProvider
+     */
+    mapLevel(methodName = 'log', originalMethodName = 'log') {
+      providerConfig.levelMapping[methodName] = originalMethodName;
+      return this;
+    },
+    /**
+     * Use a custom formatting function to munge data before sending it
+     * to Loggly.
+     * @param {Function} [func] Formatting function.  This function should
+     * accept two (2) parameters:
+     * - `level`: The "level" of the $log call.  `debug`, `warn`, `error`, etc.
+     * - `body`: An object containing the rest of the message body.  By default
+     * we use the following fields:
+     *   - `label`: A "label" for the log message
+     *   - `desc`: The `string` log message itself
+     *   - `data`: An object with extra data in it
+     * `func` should then return a complete `Object` to send to Loggly.
+     * @this $logglyProvider
+     * @returns {$logglyProvider} $logglyProvider
+     */
+    formatter(func) {
+      if (isFunction(func)) {
+        providerConfig.formatter = func;
+      }
+      return this;
+    },
+    /**
+     * Returns the current configuration.
+     * @returns {{logglyConfig: {logglyKey: string, sendConsoleErrors:
+     *   boolean}, providerConfig: {allowUncaught: boolean, logglyUrl: string,
+     *   levelMapping: Object, formatter: Function}}}
+     */
+    config() {
+      return {
+        logglyConfig,
+        providerConfig
+      };
+    },
+
+    /**
+     * Decorates $log with the configuration.  Must be called during
+     * config() phase.
+     */
+    decorate() {
+      $provide.decorate('$log', require('./log'));
+    },
+
+    // @ngInject
+    $get: require('./service')({logglyConfig, providerConfig})
+  };
+}
+
+module.exports = $logglyProvider;

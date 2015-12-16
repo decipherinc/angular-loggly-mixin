@@ -1,0 +1,4 @@
+/*! <%= pkg.name %> - v<%= pkg.version %>
+ * <%= pkg.homepage %>
+ * Copyright (c) 2015 Focusvision Worldwide; Licensed <%= pkg.license %>
+ */
