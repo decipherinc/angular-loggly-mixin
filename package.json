@@ -52,6 +52,8 @@
     "browserify-istanbul": "^0.2.1",
     "browserify-ngannotate": "^2.0.0",
     "chai": "^3.4.1",
+    "codeclimate-test-reporter": "^0.1.1",
+    "coveralls": "^2.11.6",
     "eslint": "^1.10.3",
     "eslint-config-semistandard": "^5.0.0",
     "eslint-config-standard": "^4.4.0",
