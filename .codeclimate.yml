@@ -1,0 +1,11 @@
+---
+engines:
+  eslint:
+    enabled: true
+ratings:
+  paths:
+    - "src/**.js"
+    - ".*.js"
+exclude_paths:
+  - "test/**/*"
+  - "angular-loggly-mixin*.js"
