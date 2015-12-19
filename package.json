@@ -7,13 +7,12 @@
     "test": "npm run lint && npm run karma",
     "karma": "karma start .karma.conf.js --single-run",
     "watch": "karma start .karma.conf.js",
-    "lint": "eslint src/**/*.js karma.conf.js test/**/*.js",
+    "lint": "eslint src/**/*.js .*..js test/**/*.js",
     "build": "npm run build-node; npm run build-browser",
     "build-node": "babel src --out-dir lib",
     "build-browser": "npm run build-browser-main; npm run build-browser-min",
-    "build-browser-main": "browserify --standalone angular-loggly-mixin --transform [ exposify --expose [ --angular angular ] ] --plugin [ bannerify --file .banner.txt --pkg package.json ] src --outfile angular-loggly-mixin.js",
-    "build-browser-min": "browserify --standalone angular-loggly-mixin --transform [ exposify --expose [ --angular angular ] ] --plugin [ bannerify --file .banner.txt --pkg package.json ] --global-transform uglifyify src --outfile angular-loggly-mixin.min.js",
-    "prepublish": "npm run build-node"
+    "build-browser-main": "browserify --plugin [ bannerify --file .banner.txt --pkg package.json ] src --outfile angular-loggly-mixin.js",
+    "build-browser-min": "browserify --plugin [ bannerify --file .banner.txt --pkg package.json ] --global-transform uglifyify src --outfile angular-loggly-mixin.min.js"
   },
   "repository": {
     "type": "git",
@@ -77,11 +76,19 @@
   "dependencies": {
     "format": "^0.2.1"
   },
-  "browser": "angular-loggly",
+  "browser": "angular-loggly.js",
   "browserify": {
     "transform": [
       "babelify",
-      "browserify-ngannotate"
+      "browserify-ngannotate",
+      [
+        "exposify",
+        {
+          "expose": {
+            "angular": "angular"
+          }
+        }
+      ]
     ]
   }
 }
