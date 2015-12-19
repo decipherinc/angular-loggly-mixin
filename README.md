@@ -15,9 +15,13 @@ This module provides *sensible defaults*, but also allows you to configure it to
 ```js
 angular.module('myModule', ['fv.loggly-mixin'])
   .config($logglyProvider => {
-    // replace with your key
-    $logglyProvider.logglyKey('00000000-0000-0000-0000-000000000000');
-      .decorate()
+    // replace with your key.  the "sensible default" is an empty string,
+    // which I guess is not so sensible.    
+    $logglyProvider.logglyKey('00000000-0000-0000-0000-000000000000')
+      // this must be called to decorate the $log service.
+      // if you just want the connection to Loggly established (to say, use
+      // `$loggly.send()` to communicate directly), omit this.
+      .decorate();
   })
   .run($log => {
     $log.info('Ready to work!');
@@ -33,8 +37,6 @@ All configuration options (as defaults) are shown here:
 ```js
 angular.module('myModule', ['fv.loggly-mixin'])
   .config($logglyProvider => {
-    // (there is no default key; you probably want to set it, unless
-    // you have your own Loggly server)
     $logglyProvider.logglyKey('00000000-0000-0000-0000-000000000000')
       // tracker url
       .logglyUrl('//cloudfront.loggly.com/js/loggly.tracker.js')
@@ -44,7 +46,8 @@ angular.module('myModule', ['fv.loggly-mixin'])
       .sendConsoleErrors(false)
       // message formatting function.  accepts these two parameters
       // and should return an object.  use this to custom-tailor your
-      // data.
+      // data.  
+      // this function runs in a `null` context.
       .formatter((level, body) => {
         body.desc = body.desc || '(no description)';
         return Object.assign({level}, body);
@@ -53,61 +56,97 @@ angular.module('myModule', ['fv.loggly-mixin'])
       // you can define custom "levels" in this manner, or "forward" all
       // calls from one to another.
       // if `$log.debug` doesn't exist or is disabled, `$log.log` will be used.
-      //
+      // note that this function will not *remove* any existing settings;
+      // $log.error() will still be $log.error() unless you override it.
       .levelMapping({
         debug: 'debug',
         log: 'log',
         info: 'info',
         warn: 'warn',
-        error: 'error'
-      });
+        error: 'error',
+        time: 'log'
+      })
+      // set the level used by the $log.timeEnd() method to 'time'.
+      // it should correspond to a key in the level mapping object.
+      // see "Timers" section below for more info.
+      .timerLevel('time')
 
     // in addition, a convenience method exists to map a method;
     // this causes `$log.foo()` to call `$log.log()`.  returns $logglyProvider
     // instance.
     $logglyProvider.mapLevel('foo', 'log');
 
-    // finally, you can grab the entire configuration this way:
-    $logglyProvider.config();
+    // finally, you can grab the entire configuration object this way.
+    // property `logglyConfig` is data which will be sent to Loggly; feel free
+    // to manually add anything else here.
+    // property `providerConfig` is used internally and does not get sent to 
+    // Loggly.
+    console.dir($logglyProvider.config);
 
     // call this when finished to decorate the service.
     $logglyProvider.decorate();
   })
   .run($log => {
     // you can also pull the config at runtime
-    $log.config();
+    console.dir($log.config);
 
-    // or send an object directly to Loggly
+    // or send something directly to Loggly
     $log.send({
       foo: 'bar'
     });
   });
 ```
-
-## Events
-
-Once the Loggly tracker is "ready", a `fv.loggly-mixin:ready` event will be emitted (not broadcast) on the `$rootScope`.
-
 ## Timers
 
 Since `$log` has no timing functionality, and it's often useful to send timer information to Loggly, `$log` will now have two more functions:
 
-### $log.time(label)
+### $log.timer(label)
 
-Starts a timer for `String` `label`.
+Starts a timer with the given `{string}` label.  Returns `undefined`.
 
-### $log.timeEnd(label, desc, data)
+### $log.timerEnd(label, [desc], [data])
 
-Ends the timer for `label`, and sends a message to Loggly of the following format, where `ms` is elapsed time in milliseconds:
+Ends the timer for `{string}` `label`, with an optional description `{string}` `desc` and optional data `{*}` `data`.  Sends a message to Loggly of the following format, where `{number}` `ms` is elapsed time in milliseconds:
 
 ```js
 const msg = {
-  level: "log",
+  level: 'time',
   ms: ms,
   desc: desc,
   data: data
 }
-```
+``` 
+
+If you've used `$logglyProvider.timerLevel()` to set a different level value, it will
+be used instead of `time`.
+
+Returns `undefined`.
+
+## $loggly Service
+
+A `$loggly` service is defined, mostly for internal usage.  Its main responsibility is to use the configuration as defined in `$logglyProvider` to initiate communcation with Loggly.
+
+The following members may be of use:
+
+### send(data)
+
+Sends `{*}` `data` directly to Loggly.  
+
+Returns the `$loggly` service, and is thusly chainable.
+ 
+### config
+
+An `Object` representation of the configuration as set by `$logglyProvider` is available here.  Modifying it is *unsupported* at the time of this writing.
+
+## Events
+
+Events are emitted (not broadcast) on `$rootScope`.
+
+- `fv.loggly-mixin:ready`: Once the Loggly tracker is "ready", this event is emitted.
+
+- `fv.loggly-mixin:timer-started`: When a timer has been started via `$log.timer()`, this event is emitted with the `label` and a `timestamp` (from the epoch).
+
+- `fv.loggly-mixin:timer-stopped`: When a timer has ended via `$log.timerEnd()`, this event is emitted with the `label`, any description, extra data, and a `ms` field indicating elapsed time.
 
 ## Author
 
