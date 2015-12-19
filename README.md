@@ -124,7 +124,7 @@ Returns `undefined`.
 
 ## $loggly Service
 
-A `$loggly` service is defined, mostly for internal usage.  Its main responsibility is to use the configuration as defined in `$logglyProvider` to initiate communcation with Loggly.
+A `$loggly` service is available, however, it's mostly for internal usage.  `$loggly`'s' main responsibility is to use the configuration as defined in `$logglyProvider` to initiate communcation with Loggly.
 
 The following members may be of use:
 
