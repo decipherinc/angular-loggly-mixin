@@ -154,4 +154,4 @@ Events are emitted (not broadcast) on `$rootScope`.
 
 ## License
 
-© 2015 FocusVision Worldwide.  Licensed MIT.
+© 2015 FocusVision Worldwide.  Licensed [Apache-2.0](https://github.com/decipherinc/angular-loggly-mixin/blob/master/LICENSE).

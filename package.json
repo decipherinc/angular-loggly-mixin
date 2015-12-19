@@ -31,7 +31,7 @@
     "lib/**/*.js"
   ],
   "author": "Christopher Hiller <chiller@decipherinc.com>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/decipherinc/angular-loggly-mixin/issues"
   },
@@ -79,7 +79,6 @@
   "dependencies": {
     "format": "^0.2.1"
   },
-  "browser": "angular-loggly.js",
   "browserify": {
     "transform": [
       "babelify",
