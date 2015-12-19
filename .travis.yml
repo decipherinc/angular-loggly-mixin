@@ -18,3 +18,5 @@ install:
   - export CXX=g++-4.8
   - $CXX --version
   - npm i
+env:
+  - PHANTOMJS_BIN=/home/travis/build/decipherinc/angular-loggly-mixin/node_modules/phantomjs2-ext/lib/phantom/bin/phantomjs
