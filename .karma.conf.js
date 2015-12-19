@@ -57,7 +57,7 @@ module.exports = function karmaConfig(config) {
           type: 'text-summary'
         },
         {
-          type: 'lcov-only',
+          type: 'lcovonly',
           subdir: '.'
         }
       ]
