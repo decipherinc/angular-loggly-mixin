@@ -51,10 +51,14 @@ module.exports = function karmaConfig(config) {
       dir: 'coverage',
       reporters: [
         {
-          type: 'lcov'
+          type: 'html'
         },
         {
           type: 'text-summary'
+        },
+        {
+          type: 'lcov-only',
+          subdir: '.'
         }
       ]
     }
