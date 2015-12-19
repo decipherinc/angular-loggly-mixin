@@ -2,7 +2,7 @@
  * https://github.com/decipherinc/angular-loggly-mixin#readme
  * Copyright (c) 2015 Focusvision Worldwide; Licensed MIT
  */
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.angularLogglyMixin = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 //
 // format - printf-like string formatting for JavaScript
 // github.com/samsonjs/format
@@ -116,17 +116,16 @@
 (function (global){
 'use strict';
 
-var _ref = typeof window !== "undefined" ? window['angular'] : typeof global !== "undefined" ? global['angular'] : null;
+var _require = (typeof window !== "undefined" ? window['angular'] : typeof global !== "undefined" ? global['angular'] : null);
 
-var isObject = _ref.isObject;
+var extend = _require.extend;
+var isObject = _require.isObject;
 
 var formatString = undefined;
 
 // @ngInject
 function $log($delegate, $loggly) {
-  var _$loggly$config = $loggly.config();
-
-  var providerConfig = _$loggly$config.providerConfig;
+  var providerConfig = $loggly.config.providerConfig;
 
   var levelMapping = providerConfig.levelMapping;
   var timers = {};
@@ -162,7 +161,7 @@ function $log($delegate, $loggly) {
             desc = formatString.apply(undefined, [msg].concat(args));
           }
         }
-        send(format(Object.assign({ desc: desc }, data)));
+        send(format(extend({ desc: desc }, data)));
       }
       return originalMethod.call($delegate, msg);
     };
@@ -172,8 +171,13 @@ function $log($delegate, $loggly) {
    * Starts a timer with given label.
    * @param {string} label Some label for the timer
    */
-  $delegate.time = function time(label) {
-    timers[label] = Date.now();
+  $delegate.timer = function (label) {
+    var timestamp = Date.now();
+    timers[label] = timestamp;
+    $loggly.$emit('timer-started', {
+      label: label,
+      timestamp: timestamp
+    });
   };
 
   /**
@@ -182,7 +186,7 @@ function $log($delegate, $loggly) {
    * @param {(string|Object)} [desc] Log message, or just `data` object
    * @param {Object} [data] Extra data to send
    */
-  $delegate.timeEnd = function timeEnd(label, desc) {
+  $delegate.timerEnd = function (label, desc) {
     var data = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     var now = Date.now();
@@ -190,12 +194,23 @@ function $log($delegate, $loggly) {
     delete timers[label];
     if (isObject(desc)) {
       data = desc;
-      desc = undefined;
+    } else {
+      extend(data, { desc: desc });
     }
-    $delegate.log(label, Object.assign(data, { desc: desc }));
+    $loggly.$emit('timer-stopped', {
+      label: label,
+      data: data
+    });
+    $delegate[providerConfig.timeLevel](label, data);
   };
 
-  Object.assign($delegate, Object.keys(levelMapping).map(function (methodName) {
+  // ensure we have something for timerEnd() to use
+  if (!levelMapping.hasOwnProperty(providerConfig.timeLevel)) {
+    providerConfig.timeLevel = 'time';
+    levelMapping[providerConfig.timeLevel || 'time'] = 'log';
+  }
+
+  extend($delegate, Object.keys(levelMapping).map(function (methodName) {
     var originalMethodName = levelMapping[methodName];
     return createProxy(methodName, $delegate[originalMethodName] || $delegate.log);
   }));
@@ -211,12 +226,13 @@ module.exports = $log;
 (function (global){
 'use strict';
 
-var _ref = typeof window !== "undefined" ? window['angular'] : typeof global !== "undefined" ? global['angular'] : null;
+var _require = (typeof window !== "undefined" ? window['angular'] : typeof global !== "undefined" ? global['angular'] : null);
 
-var isString = _ref.isString;
-var isDefined = _ref.isDefined;
-var isObject = _ref.isObject;
-var isFunction = _ref.isFunction;
+var isString = _require.isString;
+var isDefined = _require.isDefined;
+var isObject = _require.isObject;
+var isFunction = _require.isFunction;
+var extend = _require.extend;
 
 /**
  * Format a message for sending to Loggly
@@ -230,11 +246,11 @@ function defaultFormatter(level) {
   var body = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   body.desc = body.desc || '(no description)';
-  return Object.assign({ level: level }, body);
+  return extend({ level: level }, body);
 }
 
 // @ngInject
-function $logglyProvider($provide) {
+function $logglyProvider($provide, $$logglyMixinNamespace) {
   var logglyConfig = {
     logglyKey: '',
     sendConsoleErrors: false
@@ -242,18 +258,21 @@ function $logglyProvider($provide) {
 
   var providerConfig = {
     allowUncaught: true,
+    timerLevel: 'time',
     logglyUrl: '//cloudfront.loggly.com/js/loggly.tracker.js',
     levelMapping: {
       debug: 'debug',
       log: 'log',
       info: 'info',
       warn: 'warn',
-      error: 'error'
+      error: 'error',
+      time: 'log'
     },
-    formatter: defaultFormatter
+    formatter: defaultFormatter,
+    $namespace: $$logglyMixinNamespace
   };
 
-  Object.assign(this, {
+  var provider = {
     /**
      * Set the Loggly API key.  This must be set for operation.
      * @param {string} [value] API key
@@ -325,7 +344,7 @@ function $logglyProvider($provide) {
      */
     levelMapping: function levelMapping(value) {
       if (isObject(value)) {
-        Object.assign(providerConfig.levelMapping, value);
+        extend(providerConfig.levelMapping, value);
       }
       return this;
     },
@@ -368,98 +387,123 @@ function $logglyProvider($provide) {
     },
 
     /**
-     * Returns the current configuration.
-     * @returns {{logglyConfig: {logglyKey: string, sendConsoleErrors:
-     *   boolean}, providerConfig: {allowUncaught: boolean, logglyUrl: string,
-     *   levelMapping: Object, formatter: Function}}}
-     */
-    config: function config() {
-      return {
-        logglyConfig: logglyConfig,
-        providerConfig: providerConfig
-      };
-    },
-
-    /**
      * Decorates $log with the configuration.  Must be called during
      * config() phase.
      */
     decorate: function decorate() {
-      $provide.decorate('$log', require('./log'));
+      $provide.decorate('$log', require('./log-decorator'));
+    },
+
+    /**
+     * Sets the level used by `$log.timerEnd()` method.
+     * @param {string} [value] Should correspond to a key in the level mapping
+     * @this $logglyProvider
+     * @returns {$logglyProvider}
+     */
+    timerLevel: function timerLevel(value) {
+      if (isDefined(value)) {
+        providerConfig.timerLevel = value;
+      }
+      return this;
     },
 
     // @ngInject
-    $get: require('./service')({ logglyConfig: logglyConfig, providerConfig: providerConfig })
+    $get: require('./loggly-service')({ logglyConfig: logglyConfig, providerConfig: providerConfig })
+  };
+
+  Object.defineProperty(provider, 'config', {
+    value: { logglyConfig: logglyConfig, providerConfig: providerConfig },
+    writable: false,
+    configurable: true
   });
+
+  return provider;
 }
-$logglyProvider.$inject = ["$provide"];
+$logglyProvider.$inject = ["$provide", "$$logglyMixinNamespace"];
 
 module.exports = $logglyProvider;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./log":2,"./service":4}],4:[function(require,module,exports){
+},{"./log-decorator":2,"./loggly-service":4}],4:[function(require,module,exports){
+(function (global){
 'use strict';
 
+var _require = (typeof window !== "undefined" ? window['angular'] : typeof global !== "undefined" ? global['angular'] : null);
+
+var element = _require.element;
+
 function $logglyService(config) {
+  var namespace = config.providerConfig.$namespace;
+
   // @ngInject
-  return function $loggly($window, $document) {
-    var tracker = $window._LTracker = $window._LTracker || [];
-
-    /**
-     * Bootstraps the service by loading the Loggly script from
-     * {@link providerConfig.logglyUrl}, and initiating the tracker.
-     * This is done automatically.
-     * @todo Support for multiple trackers
-     * @param {Object} [logglyConfig] Alternative Loggly configuration
-     * @param {Object} [providerConfig] Alternative $loggly configuration
-     */
-    function bootstrap() {
-      var logglyConfig = arguments.length <= 0 || arguments[0] === undefined ? config.logglyConfig : arguments[0];
-      var providerConfig = arguments.length <= 1 || arguments[1] === undefined ? config.providerConfig : arguments[1];
-
-      var script = $document.createElement('script');
-      // noinspection JSCheckFunctionSignatures
-      script.setAttribute('async', true);
-      script.setAttribute('src', providerConfig.logglyUrl);
-      $document.querySelector('head').appendChild(script);
-      send(logglyConfig);
-    }
-
-    /**
-     * Sends data to Loggly by pushing to the tracker array.
-     * @param {*} data Data to send
-     * @returns {*} Data you sent
-     */
-    function send(data) {
-      tracker.push(data);
-      return data;
-    }
-
+  return function $loggly($window, $document, $rootScope) {
     return {
-      bootstrap: bootstrap,
-      config: config,
-      send: send
+      tracker: $window._LTracker = $window._LTracker || [],
+      /**
+       * Bootstraps the service by loading the Loggly script from
+       * {@link providerConfig.logglyUrl}, and initiating the tracker.
+       * This is done automatically.
+       * @todo Support for multiple trackers
+       * @param {Object} [logglyConfig] Alternative Loggly configuration
+       * @param {Object} [providerConfig] Alternative service configuration
+       * @private
+       */
+      $bootstrap: function $bootstrap() {
+        var logglyConfig = arguments.length <= 0 || arguments[0] === undefined ? config.logglyConfig : arguments[0];
+        var providerConfig = arguments.length <= 1 || arguments[1] === undefined ? config.providerConfig : arguments[1];
+
+        var script = element('<script>').prop('async', true).attr('src', providerConfig.logglyUrl);
+        $document.find('head').append(script);
+        this.send(logglyConfig);
+        this.$emit('ready');
+      },
+
+      /**
+       * Emits some event w data on `$rootScope`.
+       * @param {string} event Event name
+       * @param {...*} [data] Extra data
+       * @private
+       * @returns {Object} Event object
+       */
+      $emit: function $emit(event) {
+        for (var _len = arguments.length, data = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          data[_key - 1] = arguments[_key];
+        }
+
+        return $rootScope.$emit.apply($rootScope, [namespace + ':' + event].concat(data));
+      },
+
+      /**
+       * Sends data to Loggly by pushing to the tracker array.
+       * @param {*} data Data to send
+       * @returns {*} Data you sent
+       */
+      send: function send(data) {
+        this.tracker.push(data);
+        return this;
+      },
+
+      config: config
     };
   };
 }
 
 module.exports = $logglyService;
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],5:[function(require,module,exports){
 (function (global){
 'use strict';
 
-var angular = typeof window !== "undefined" ? window['angular'] : typeof global !== "undefined" ? global['angular'] : null;
+var angular = (typeof window !== "undefined" ? window['angular'] : typeof global !== "undefined" ? global['angular'] : null);
 var moduleName = 'fv.loggly-mixin';
-var logglyDecorator = angular.module(moduleName, []);
+var logglyMixin = angular.module(moduleName, []);
 
-logglyDecorator.provider('$loggly', require('./provider')).run(["$loggly", "$rootScope", function ($loggly, $rootScope) {
-  $loggly.bootstrap();
-  $rootScope.$emit(moduleName + ':ready');
+logglyMixin.constant('$$logglyMixinNamespace', moduleName).provider('$loggly', require('./loggly-provider')).run(["$loggly", function ($loggly) {
+  $loggly.$bootstrap();
 }]);
 
 module.exports = moduleName;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./provider":3}]},{},[5])(5)
-});
+},{"./loggly-provider":3}]},{},[5]);
