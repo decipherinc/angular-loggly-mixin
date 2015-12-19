@@ -2,6 +2,8 @@
 
 > AngularJS module to pass $log calls thru to Loggly
 
+[![Travis CI](https://travis-ci.org/decipherinc/angular-loggly-mixin.svg)](https://travis-ci.org/decipherinc/angular-loggly-mixin) [![Code Climate](https://codeclimate.com/github/decipherinc/angular-loggly-mixin/badges/gpa.svg)](https://codeclimate.com/github/decipherinc/angular-loggly-mixin) [![Coveralls](https://coveralls.io/repos/decipherinc/angular-loggly-mixin/badge.svg?branch=master&service=github)](https://coveralls.io/github/decipherinc/angular-loggly-mixin?branch=master)
+
 ## Summary
 
 The purpose of this module is to allow you to use [Loggly](https://loggly.com) in your AngularJS module with as little impact to your existing code as possible.
