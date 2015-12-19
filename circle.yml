@@ -1,5 +1,3 @@
 machine:
   node:
     version: 4
-  environment:
-    PHANTOMJS_BIN: /home/ubuntu/angular-loggly-mixin/node_modules/phantomjs2-ext/lib/phantom/bin/phantomjs
