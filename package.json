@@ -9,7 +9,7 @@
     "watch": "karma start .karma.conf.js",
     "lint": "eslint src/**/*.js .*..js test/**/*.js",
     "build": "npm run build-node; npm run build-browser",
-    "build-node": "babel src --out-dir lib",
+    "build-node": "rimraf lib; babel src --out-dir lib",
     "build-browser": "npm run build-browser-main; npm run build-browser-min",
     "build-browser-main": "browserify --plugin [ bannerify --file .banner.txt --pkg package.json ] src --outfile angular-loggly-mixin.js",
     "build-browser-min": "browserify --plugin [ bannerify --file .banner.txt --pkg package.json ] --global-transform uglifyify src --outfile angular-loggly-mixin.min.js"
@@ -68,6 +68,7 @@
     "phantomjs2-ext": "^0.1.0",
     "pre-commit": "^1.1.2",
     "publish-please": "^1.1.0",
+    "rimraf": "^2.4.4",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
     "uglifyify": "^3.0.1",
