@@ -18,6 +18,7 @@ addons:
       - clang-3.6
       - g++-4.8
 notifications:
+  email: false
   pushover:
     api_key:
       secure: ScxGZ1lFtqLuQwBS9ygVOar/SFdJ8d/pL1uQunzwYdoE0i7qdzFYmcoMtz7X+x7btRI5OfrudVS6njGi/uiWdlcw0hmATmKK9hIPH1LBh4/RexPkU2RtXl4MZ5InA38WjftDSIiczzaOvjHhfslUzwn6QTZaImVjYp8cQxl8QvxD8BKdI8LLMjc8u71XNpl8vqLt/NinQE9INqlJ1h6rPFLyY0Wc4Lt19Hubg1u+NFbafnAsR7iZ1p4ziG3lTEqSsRoZTOvYv0lyyFlpRVYOPmCyCH25BJy7dch8claBrBQkGmh8lClj6lRdc/+FEcuzdhaIiyGx2WsPai09dv86NSLsxiwtRxe/VVGMqqH3PUISBI6cASYhFS6PyI+mEl7Ff+2RBvtKLbXpm4cJIPj3ewM0tFkmMgUanyJ54+vEYS+Vz/Q+Uy3OYY7ovNX9E5Fm/LrQj/IBVu+v1diIxgx2yz/KL4qDKjvop7s8hyBBMn81xRVXwCTbZ0F8X90hzeKy9XY8j4QUhvhPmmq3xBxeKVquR8C7qRO/W8h3AAowfEOeZ2teceYh6bZPdXJaBG8uApAjm7AGzprIEe+TF2ZkdkWxq0bW4PvEqkI7meFyonRgKHwx3eep83rRIvmVkYeKED33WnJyOGu6CSJKQGto1lPsjDkzwbCqj0CX4BCvxn8=
