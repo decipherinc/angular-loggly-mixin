@@ -12,8 +12,7 @@
     "build-node": "rimraf lib; babel src --out-dir lib",
     "build-browser": "npm run build-browser-main; npm run build-browser-min",
     "build-browser-main": "browserify --transform [ exposify --expose [ --angular angular ] ] --plugin [ bannerify --file .banner.txt --pkg package.json ] src --outfile angular-loggly-mixin.js",
-    "build-browser-min": "browserify --transform [ exposify --expose [ --angular angular ] ] --plugin [ bannerify --file .banner.txt --pkg package.json ] --global-transform uglifyify src --outfile angular-loggly-mixin.min.js",
-    "prepublish": "npm run build-node"
+    "build-browser-min": "browserify --transform [ exposify --expose [ --angular angular ] ] --plugin [ bannerify --file .banner.txt --pkg package.json ] --global-transform uglifyify src --outfile angular-loggly-mixin.min.js"
   },
   "repository": {
     "type": "git",
