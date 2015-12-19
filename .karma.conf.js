@@ -25,7 +25,14 @@ module.exports = function karmaConfig(config) {
           }
         ],
         'browserify-ngannotate',
-        require('browserify-istanbul')
+        [
+          'browserify-istanbul',
+          {
+            instrumenterConfig: {
+              embedSource: true
+            }
+          }
+        ]
       ]
     },
     reporters: [
