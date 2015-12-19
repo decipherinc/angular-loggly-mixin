@@ -15,7 +15,7 @@ function defaultFormatter(level, body = {}) {
 }
 
 // @ngInject
-function $logglyProvider($provide) {
+function $logglyProvider($provide, $$logglyMixinNamespace) {
   const logglyConfig = {
     logglyKey: '',
     sendConsoleErrors: false
@@ -23,18 +23,21 @@ function $logglyProvider($provide) {
 
   const providerConfig = {
     allowUncaught: true,
+    timerLevel: 'time',
     logglyUrl: '//cloudfront.loggly.com/js/loggly.tracker.js',
     levelMapping: {
       debug: 'debug',
       log: 'log',
       info: 'info',
       warn: 'warn',
-      error: 'error'
+      error: 'error',
+      time: 'log'
     },
-    formatter: defaultFormatter
+    formatter: defaultFormatter,
+    $namespace: $$logglyMixinNamespace
   };
 
-  return {
+  const provider = {
     /**
      * Set the Loggly API key.  This must be set for operation.
      * @param {string} [value] API key
@@ -137,30 +140,39 @@ function $logglyProvider($provide) {
       }
       return this;
     },
-    /**
-     * Returns the current configuration.
-     * @returns {{logglyConfig: {logglyKey: string, sendConsoleErrors:
-     *   boolean}, providerConfig: {allowUncaught: boolean, logglyUrl: string,
-     *   levelMapping: Object, formatter: Function}}}
-     */
-    config() {
-      return {
-        logglyConfig,
-        providerConfig
-      };
-    },
 
     /**
      * Decorates $log with the configuration.  Must be called during
      * config() phase.
      */
     decorate() {
-      $provide.decorate('$log', require('./log'));
+      $provide.decorate('$log', require('./log-decorator'));
+    },
+
+    /**
+     * Sets the level used by `$log.timerEnd()` method.
+     * @param {string} [value] Should correspond to a key in the level mapping
+     * @this $logglyProvider
+     * @returns {$logglyProvider}
+     */
+    timerLevel(value) {
+      if (isDefined(value)) {
+        providerConfig.timerLevel = value;
+      }
+      return this;
     },
 
     // @ngInject
-    $get: require('./service')({logglyConfig, providerConfig})
+    $get: require('./loggly-service')({logglyConfig, providerConfig})
   };
+
+  Object.defineProperty(provider, 'config', {
+    value: {logglyConfig, providerConfig},
+    writable: false,
+    configurable: true
+  });
+
+  return provider;
 }
 
 module.exports = $logglyProvider;

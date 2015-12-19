@@ -5,7 +5,7 @@ let formatString;
 
 // @ngInject
 function $log($delegate, $loggly) {
-  const {providerConfig} = $loggly.config();
+  const {providerConfig} = $loggly.config;
   const levelMapping = providerConfig.levelMapping;
   const timers = {};
   const send = $loggly.send;
@@ -46,8 +46,14 @@ function $log($delegate, $loggly) {
    * Starts a timer with given label.
    * @param {string} label Some label for the timer
    */
-  $delegate.time = function time(label) {
-    timers[label] = Date.now();
+  $delegate.timer = label => {
+    const timestamp = Date.now();
+    timers[label] = timestamp;
+    $loggly.$emit('timer-started',
+      {
+        label,
+        timestamp
+      });
   };
 
   /**
@@ -56,16 +62,27 @@ function $log($delegate, $loggly) {
    * @param {(string|Object)} [desc] Log message, or just `data` object
    * @param {Object} [data] Extra data to send
    */
-  $delegate.timeEnd = function timeEnd(label, desc, data = {}) {
+  $delegate.timerEnd = (label, desc, data = {}) => {
     const now = Date.now();
     data.ms = now - (timers[label] || now);
     delete timers[label];
     if (isObject(desc)) {
       data = desc;
-      desc = undefined;
+    } else {
+      extend(data, {desc});
     }
-    $delegate.log(label, extend(data, {desc}));
+    $loggly.$emit('timer-stopped', {
+      label,
+      data
+    });
+    $delegate[providerConfig.timeLevel](label, data);
   };
+
+  // ensure we have something for timerEnd() to use
+  if (!levelMapping.hasOwnProperty(providerConfig.timeLevel)) {
+    providerConfig.timeLevel = 'time';
+    levelMapping[providerConfig.timeLevel || 'time'] = 'log';
+  }
 
   extend($delegate, Object.keys(levelMapping)
     .map(function(methodName) {

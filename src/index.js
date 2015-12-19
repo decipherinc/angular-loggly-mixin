@@ -5,10 +5,10 @@ const moduleName = 'fv.loggly-mixin';
 const logglyMixin = angular.module(moduleName, []);
 
 logglyMixin
-  .provider('$loggly', require('./provider'))
-  .run(($loggly, $rootScope) => {
-    $loggly.bootstrap();
-    $rootScope.$emit(`${moduleName}:ready`);
+  .constant('$$logglyMixinNamespace', moduleName)
+  .provider('$loggly', require('./loggly-provider'))
+  .run($loggly => {
+    $loggly.$bootstrap();
   });
 
 module.exports = moduleName;
