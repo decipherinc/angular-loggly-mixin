@@ -5,127 +5,168 @@ describe(`$logglyProvider`, () => {
   const partial = require('lodash.partial');
   const get = require('lodash.get');
 
-  let provider;
+  let $logglyProvider;
+  let $provide;
   let getConfig;
+  let sandbox;
 
   beforeEach(() => {
-    mock.module(moduleName, $logglyProvider => {
-      provider = $logglyProvider;
-      getConfig = partial(get, provider.config);
+    mock.module(moduleName, (_$logglyProvider_, _$provide_) => {
+      $logglyProvider = _$logglyProvider_;
+      $provide = _$provide_;
+      getConfig = partial(get, $logglyProvider.config);
     });
     mock.inject();
+    sandbox = sinon.sandbox.create('$logglyProvider');
   });
 
-  it(`should be an object`, () => {
-    expect(provider)
-      .to
-      .be
-      .an('object');
+  afterEach(() => {
+    sandbox.restore();
   });
 
   describe(`method`, () => {
     describe(`logglyKey()`, () => {
       it(`should set the "logglyKey" prop`, () => {
-        provider.logglyKey('foo');
+        $logglyProvider.logglyKey('foo');
         expect(getConfig('logglyConfig.logglyKey'))
           .to
           .equal('foo');
       });
 
       it(`should return the provider`, () => {
-        expect(provider.logglyKey())
+        expect($logglyProvider.logglyKey())
           .to
-          .equal(provider);
+          .equal($logglyProvider);
       });
     });
 
     describe(`logglyUrl()`, () => {
       it(`should set the "logglyUrl" prop`, () => {
-        provider.logglyUrl('foo');
+        $logglyProvider.logglyUrl('foo');
         expect(getConfig('providerConfig.logglyUrl'))
           .to
           .equal('foo');
       });
 
       it(`should return the provider`, () => {
-        expect(provider.logglyUrl())
+        expect($logglyProvider.logglyUrl())
           .to
-          .equal(provider);
+          .equal($logglyProvider);
       });
     });
 
     describe(`allowUncaught()`, () => {
       it(`should set the "allowUncaught" prop`, () => {
-        provider.allowUncaught(false);
+        $logglyProvider.allowUncaught(false);
         expect(getConfig('providerConfig.allowUncaught'))
           .to
           .equal(false);
       });
 
       it(`should return the provider`, () => {
-        expect(provider.allowUncaught())
+        expect($logglyProvider.allowUncaught())
           .to
-          .equal(provider);
+          .equal($logglyProvider);
       });
     });
 
     describe(`sendConsoleErrors()`, () => {
       it(`should set the "sendConsoleErrors" prop`, () => {
-        provider.sendConsoleErrors(true);
+        $logglyProvider.sendConsoleErrors(true);
         expect(getConfig('logglyConfig.sendConsoleErrors'))
           .to
           .equal(true);
       });
 
       it(`should return the provider`, () => {
-        expect(provider.sendConsoleErrors())
+        expect($logglyProvider.sendConsoleErrors())
           .to
-          .equal(provider);
+          .equal($logglyProvider);
       });
     });
 
     describe(`levelMapping()`, () => {
       it(`should extend the "levelMapping" prop`, () => {
-        provider.levelMapping({foo: 'debug'});
+        $logglyProvider.levelMapping({foo: 'debug'});
         expect(getConfig('providerConfig.levelMapping').foo)
           .to
           .equal('debug');
       });
 
       it(`should return the provider`, () => {
-        expect(provider.levelMapping())
+        expect($logglyProvider.levelMapping())
           .to
-          .equal(provider);
+          .equal($logglyProvider);
       });
     });
 
     describe(`mapLevel()`, () => {
       it(`should overwrite a prop in "levelMapping" prop`, () => {
-        provider.mapLevel('debug', 'warn');
+        $logglyProvider.mapLevel('debug', 'warn');
         expect(getConfig('providerConfig.levelMapping').debug)
           .to
           .equal('warn');
       });
 
       it(`should return the provider`, () => {
-        expect(provider.mapLevel())
+        expect($logglyProvider.mapLevel())
           .to
-          .equal(provider);
+          .equal($logglyProvider);
       });
     });
 
     describe(`timerLevel()`, () => {
       it(`should set the level called by $log.timeEnd()`, () => {
-        provider.timerLevel('foo');
+        $logglyProvider.timerLevel('foo');
         expect(getConfig('providerConfig.timerLevel'))
           .to
           .equal('foo');
       });
 
       it(`should return the provider`, () => {
-        expect(provider.timerLevel())
+        expect($logglyProvider.timerLevel())
           .to
-          .equal(provider);
+          .equal($logglyProvider);
+      });
+    });
+
+    describe(`formatter()`, () => {
+      it(`should set the formatter function`, () => {
+        function func() {
+        }
+
+        $logglyProvider.formatter(func);
+        expect(getConfig('providerConfig.formatter'))
+          .to
+          .equal(func);
+      });
+
+      it(`should return the provider`, () => {
+        expect($logglyProvider.formatter())
+          .to
+          .equal($logglyProvider);
+      });
+
+      describe(`if not passed a function`, () => {
+        it(`should not set the formatter function`, () => {
+          $logglyProvider.formatter('foo');
+          expect(getConfig('providerConfig.formatter'))
+            .not
+            .to
+            .equal('foo');
+        });
+      });
+    });
+
+    describe(`decorate()`, () => {
+      it(`should call $provide.decorate()`, () => {
+        sandbox.stub($provide, 'decorator');
+        $logglyProvider.decorate();
+        expect($provide.decorator)
+          .to
+          .have
+          .been
+          .calledWithExactly('$log', require('../../src/log-decorator'));
       });
     });
   });
@@ -134,13 +175,50 @@ describe(`$logglyProvider`, () => {
     describe(`config`, () => {
       it(`should be an object with "logglyConfig" and "providerConfig" ` +
         `props`, () => {
-        expect(provider.config)
+        expect($logglyProvider.config)
           .to
           .have
           .keys([
             'logglyConfig',
             'providerConfig'
           ]);
+      });
+
+      describe(`providerConfig`, () => {
+        describe(`formatter`, () => {
+          let formatter;
+
+          beforeEach(() => {
+            formatter = getConfig('providerConfig.formatter');
+          });
+
+          describe(`when passed no parameters`, () => {
+            it(`should return an object with "desc" and "level" properties`,
+              () => {
+                expect(formatter())
+                  .to
+                  .have
+                  .keys('desc', 'level');
+              });
+          });
+
+          describe(`when passed a "level" parameter`, () => {
+            it(`should return an object with prop "level" equal to the value`,
+              () => {
+                expect(formatter('foo').level)
+                  .to
+                  .equal('foo');
+              });
+          });
+
+          describe(`when passed a "body" parameter`, () => {
+            it(`should override the "level" parameter`, () => {
+              expect(formatter('foo', {level: 'bar'}).level)
+                .to
+                .equal('bar');
+            });
+          });
+        });
       });
     });
   });

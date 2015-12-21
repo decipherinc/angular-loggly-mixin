@@ -9,7 +9,7 @@ const {isString, isDefined, isObject, isFunction, extend} = require('angular');
  * @param {string} [body.desc='(no description)'] Message description
  * @returns {Object}
  */
-function defaultFormatter(level, body = {}) {
+function defaultFormatter(level = 'unknown', body = {}) {
   body.desc = body.desc || '(no description)';
   return extend({level}, body);
 }
@@ -146,7 +146,7 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
      * config() phase.
      */
     decorate() {
-      $provide.decorate('$log', require('./log-decorator'));
+      $provide.decorator('$log', require('./log-decorator'));
     },
 
     /**
