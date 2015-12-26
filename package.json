@@ -76,7 +76,7 @@
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
     "uglifyify": "^3.0.1",
-    "wallabify": "0.0.11"
+    "wallabify": "0.0.12"
   },
   "dependencies": {
     "format": "^0.2.1"
