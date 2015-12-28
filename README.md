@@ -98,6 +98,7 @@ angular.module('myModule', ['fv.loggly-mixin'])
     });
   });
 ```
+
 ## Timers
 
 Since `$log` has no timing functionality, and it's often useful to send timer information to Loggly, `$log` will now have two more functions:
@@ -149,6 +150,22 @@ Events are emitted (not broadcast) on `$rootScope`.
 - `fv.loggly-mixin:timer-started`: When a timer has been started via `$log.timer()`, this event is emitted with the `label` and a `timestamp` (from the epoch).
 
 - `fv.loggly-mixin:timer-stopped`: When a timer has ended via `$log.timerEnd()`, this event is emitted with the `label`, any description, extra data, and a `ms` field indicating elapsed time.
+
+## Installation
+
+via [npm](https://www.npmjs.com/package/angular-loggly-mixin):
+
+```shell
+$ npm install angular angular-loggly-mixin
+```
+
+via [bower](https://bower.io):
+
+```shell
+$ bower install angular https://npmcdn.com/angular-loggly-mixin/bower.zip
+```
+
+This package requires AngularJS 1.2.0 or higher.  AngularJS 2 is not supported at this time.
 
 ## Author
 
