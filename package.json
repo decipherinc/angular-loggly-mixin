@@ -39,6 +39,10 @@
     "lib/**/*.js",
     "dist/**/*.js"
   ],
+  "engines": {
+    "node": ">=0.10.31",
+    "npm": ">=1.4.23"
+  },
   "author": "Christopher Hiller <chiller@decipherinc.com>",
   "license": "Apache-2.0",
   "bugs": {
