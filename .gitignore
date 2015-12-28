@@ -1,3 +1,5 @@
 npm-debug.log*
-coverage
-node_modules
+coverage/
+node_modules/
+dist/**/*.js
+lib/**/*.js
