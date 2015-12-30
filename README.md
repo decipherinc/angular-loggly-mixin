@@ -166,6 +166,8 @@ This package requires AngularJS 1.2.0 or higher as a peer dependency.  AngularJS
 To use with your favorite bundling tool:
 
 ```js
+const angular = require('angular');
+
 angular.module('myModule', [require('angular-loggly-mixin')])
   .config($logglyProvider => {
     $logglyProvider.logglyKey('your-key').decorate();  
