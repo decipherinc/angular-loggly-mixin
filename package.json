@@ -40,7 +40,8 @@
   ],
   "files": [
     "dist/",
-    "lib/"
+    "lib/",
+    "bower.json"
   ],
   "engines": {
     "node": ">=0.10.31",
