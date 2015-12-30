@@ -72,13 +72,17 @@ angular.module('myModule', ['fv.loggly-mixin'])
       // it should correspond to a key in the level mapping object.
       // see "Timers" section below for more info.
       .timerLevel('time')
+      // whether or not to use a domain proxy
+      .useDomainProxy(true)
+      // add one or more tags for Loggly
+      .tags('foo', 'bar', 'baz');     
 
     // in addition, a convenience method exists to map a method;
     // this causes `$log.foo()` to call `$log.log()`.  returns $logglyProvider
     // instance.
     $logglyProvider.mapLevel('foo', 'log');
 
-    // finally, you can grab the entire configuration object this way.
+    // finally, you can grab/modify the entire configuration object this way.
     // property `logglyConfig` is data which will be sent to Loggly; feel free
     // to manually add anything else here.
     // property `providerConfig` is used internally and does not get sent to 
@@ -137,7 +141,7 @@ The following members may be of use:
 
 Sends `{*}` `data` directly to Loggly.  
 
-Returns the `$loggly` service, and is thusly chainable.
+Returns `undefined`.
  
 ### config
 

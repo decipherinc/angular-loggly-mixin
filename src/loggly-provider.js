@@ -18,7 +18,9 @@ function defaultFormatter(level = 'unknown', body = {}) {
 function $logglyProvider($provide, $$logglyMixinNamespace) {
   const logglyConfig = {
     logglyKey: '',
-    sendConsoleErrors: false
+    sendConsoleErrors: false,
+    tags: [],
+    useDomainProxy: false
   };
 
   const providerConfig = {
@@ -37,7 +39,7 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
     $namespace: $$logglyMixinNamespace
   };
 
-  const provider = {
+  return {
     /**
      * Set the Loggly API key.  This must be set for operation.
      * @param {string} [value] API key
@@ -162,17 +164,42 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
       return this;
     },
 
-    // @ngInject
-    $get: require('./loggly-service')({logglyConfig, providerConfig})
+    /**
+     * Sets the tags Loggly will apply to all log messages
+     * @param {...string} [values] One or more tags to apply
+     * @this $logglyProvider
+     * @returns {$logglyProvider}
+     */
+    tags(...values) {
+      if (values.length) {
+        logglyConfig.tags = values.join(',');
+      }
+      return this;
+    },
+
+    /**
+     * Whether or not to use a domain proxy
+     * @param {boolean} [value] True/false
+     * @this $logglyProvider
+     * @returns {$logglyProvider}
+     */
+    useDomainProxy(value) {
+      if (isDefined(value)) {
+        logglyConfig.useDomainProxy = Boolean(value);
+      }
+      return this;
+    },
+
+    $get: require('./loggly-service')({
+      logglyConfig,
+      providerConfig
+    }),
+
+    config: {
+      logglyConfig,
+      providerConfig
+    }
   };
-
-  Object.defineProperty(provider, 'config', {
-    value: {logglyConfig, providerConfig},
-    writable: false,
-    configurable: true
-  });
-
-  return provider;
 }
 
 module.exports = $logglyProvider;

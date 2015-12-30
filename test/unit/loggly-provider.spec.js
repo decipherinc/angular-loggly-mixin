@@ -169,6 +169,34 @@ describe(`$logglyProvider`, () => {
           .calledWithExactly('$log', require('../../src/log-decorator'));
       });
     });
+
+    describe(`tags()`, () => {
+      it(`should set the tags used by Loggly`, () => {
+        $logglyProvider.tags('foo', 'bar');
+        expect(getConfig('logglyConfig.tags'))
+          .to
+          .equal('foo,bar');
+      });
+
+      it(`should return the provider`, () => {
+        expect($logglyProvider.tags())
+          .to
+          .equal($logglyProvider);
+      });
+    });
+
+    describe(`useDomainProxy()`, () => {
+      it(`should set the "useDomainProxy" flag used by Loggly`, () => {
+        $logglyProvider.useDomainProxy(false);
+        expect(getConfig('logglyConfig.useDomainProxy')).to.be.false;
+      });
+
+      it(`should return the instance`, () => {
+        expect($logglyProvider.useDomainProxy())
+          .to
+          .equal($logglyProvider);
+      });
+    });
   });
 
   describe(`property`, () => {
