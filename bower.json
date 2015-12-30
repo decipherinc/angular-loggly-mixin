@@ -1,0 +1,31 @@
+{
+  "name": "angular-loggly-mixin",
+  "description": "AngularJS module to pass $log calls thru to Loggly",
+  "main": "dist/angular-loggly-mixin.js",
+  "authors": [
+    "Christopher Hiller <chiller@decipherinc.com>"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "angular",
+    "angularjs",
+    "loggly",
+    "log",
+    "decorator",
+    "service",
+    "mixin"
+  ],
+  "homepage": "https://github.com/decipherinc/angular-loggly-mixin",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "src",
+    "lib",
+    "test",
+    "package.json"
+  ]
+}
