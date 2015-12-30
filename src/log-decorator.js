@@ -34,7 +34,6 @@ function $logDecorator($delegate, $loggly) {
           desc = formatString(msg, ...args);
         }
         const payload = isUndefined(desc) ? data : extend({desc}, data);
-        console.trace();
 
         $loggly.send(format(payload));
       }
