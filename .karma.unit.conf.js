@@ -1,19 +1,20 @@
 'use strict';
 
-module.exports = function karmaConfig(config) {
+module.exports = function karmaUnitConfig(config) {
+  require('./.karma.common')(config);
+
   config.set({
-    basePath: '',
     frameworks: [
       'mocha',
       'browserify'
     ],
     files: [
       'src/**/*.js',
-      'test/**/*.js'
+      'test/unit/**/*.js'
     ],
     preprocessors: {
       'src/**/*.js': 'browserify',
-      'test/**/*.js': 'browserify'
+      'test/unit/**/*.js': 'browserify'
     },
     browserify: {
       debug: true,
@@ -39,14 +40,6 @@ module.exports = function karmaConfig(config) {
       'mocha',
       'coverage'
     ],
-    port: 9876,
-    colors: true,
-    logLevel: config.LOG_INFO,
-    autoWatch: true,
-    browsers: ['PhantomJS'],
-    singleRun: false,
-    concurrency: require('os')
-      .cpus().length,
     coverageReporter: {
       dir: 'coverage',
       reporters: [

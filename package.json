@@ -2,25 +2,27 @@
   "name": "angular-loggly-mixin",
   "version": "0.0.0",
   "description": "AngularJS module to pass $log calls thru to Loggly",
-  "main": "dist/angular-loggly-mixin.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "npm run build:node && npm run build:browser",
-    "build:browser": "npm run build:browser:clean && npm run build:browser:main && npm run build:browser:min",
-    "build:browser:clean": "rimraf dist && mkdirp dist",
+    "build:node": "rimraf lib && babel src --out-dir lib",
+    "build:browser": "rimraf dist && mkdirp dist && npm run build:browser:main && npm run build:browser:min",
     "build:browser:main": "browserify --transform [ exposify --expose [ --angular angular ] ] --plugin [ bannerify --file .banner.ejs --pkg package.json ] src --outfile dist/angular-loggly-mixin.js",
     "build:browser:min": "browserify --transform [ exposify --expose [ --angular angular ] ] --plugin [ bannerify --file .banner.ejs --pkg package.json ] --global-transform uglifyify src --outfile dist/angular-loggly-mixin.min.js",
-    "build:node": "babel src --out-dir lib",
-    "build:node:clean": "rimraf lib && mkdirp lib",
+    "bump:major": "npm version major 'Release v%s'",
+    "bump:minor": "npm version minor 'Release v%s'",
+    "bump:patch": "npm version patch 'Release v%s'",
     "check": "nsp check && npm run deps",
     "deps": "npm run deps:missing && npm run deps:extra",
     "deps:extra": "dependency-check package.json --no-default-entries --entry src/index.js --extra --no-dev --ignore-module rimraf --ignore-module mkdirp",
     "deps:missing": "dependency-check package.json --no-default-entries --entry src/index.js --missing",
     "lint": "eslint src/ test/ .*.js",
-    "prepublish": "npm run build && npm run check && npm run test",
+    "prepublish": "npm run build && npm run preversion",
+    "preversion": "npm run check && npm run test",
     "publish-please": "publish-please",
-    "test": "npm run lint && npm run test:browser",
-    "test:browser": "karma start .karma.conf.js --single-run",
-    "test:watch": "karma start .karma.conf.js"
+    "test": "npm run lint && npm run test:unit && npm run test:e2e",
+    "test:unit": "karma start .karma.unit.conf.js --single-run",
+    "test:e2e": "npm run build:browser && karma start .karma.e2e.conf.js --single-run"
   },
   "repository": {
     "type": "git",
@@ -36,8 +38,8 @@
     "mixin"
   ],
   "files": [
-    "lib/**/*.js",
-    "dist/**/*.js"
+    "dist/",
+    "lib/"
   ],
   "engines": {
     "node": ">=0.10.31",
@@ -76,6 +78,7 @@
     "istanbul": "^0.4.1",
     "karma": "^0.13.16",
     "karma-browserify": "^4.4.2",
+    "karma-chrome-launcher": "^0.2.2",
     "karma-coverage": "^0.5.3",
     "karma-mocha": "^0.2.1",
     "karma-mocha-reporter": "^1.1.3",
@@ -94,10 +97,11 @@
   },
   "dependencies": {
     "format": "^0.2.1",
+    "lodash.iserror": "^3.0.1",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.5.0"
   },
-  "browser": "angular-loggly.js",
+  "browser": "dist/angular-loggly-mixin.js",
   "browserify": {
     "transform": [
       "babelify",
