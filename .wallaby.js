@@ -8,17 +8,17 @@ module.exports = function(wallaby) {
         load: false
       },
       {
-        pattern: 'test/**/*.spec.js',
+        pattern: 'test/unit/**/*.spec.js',
         ignore: true
       },
       {
-        pattern: 'test/fixture.js',
+        pattern: 'test/unit/fixture.js',
         load: false
       }
     ],
     tests: [
       {
-        pattern: 'test/**/*.spec.js',
+        pattern: 'test/unit/**/*.spec.js',
         load: false
       }
     ],
@@ -33,8 +33,8 @@ module.exports = function(wallaby) {
     // this browserifies
     postprocessor: require('wallabify')({
       entryPatterns: [
-        'test/fixture.js',
-        'test/**/*.spec.js'
+        'test/unit/fixture.js',
+        'test/unit/**/*.spec.js'
       ]
     }, function(b) {
       return b.transform(require('browserify-ngannotate'));
