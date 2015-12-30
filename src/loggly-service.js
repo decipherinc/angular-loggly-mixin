@@ -2,13 +2,15 @@
 
 const {element} = require('angular');
 
-function $logglyService(config) {
+function $logglyServiceFactory(config) {
   const namespace = config.providerConfig.$namespace;
 
   // @ngInject
-  return function $loggly($window, $document, $rootScope) {
+  return function $logglyService($window, $document, $rootScope) {
+    $window._LTracker = [];
+
     return {
-      tracker: $window._LTracker = $window._LTracker || [],
+      $tracker: $window._LTracker,
       /**
        * Bootstraps the service by loading the Loggly script from
        * {@link providerConfig.logglyUrl}, and initiating the tracker.
@@ -40,16 +42,14 @@ function $logglyService(config) {
       },
       /**
        * Sends data to Loggly by pushing to the tracker array.
-       * @param {*} data Data to send
-       * @returns {*} Data you sent
+       * @param {...*} data Data to send
        */
-      send(data) {
-        this.tracker.push(data);
-        return this;
+      send(...data) {
+        this.$tracker.push(...data);
       },
       config
     };
   };
 }
 
-module.exports = $logglyService;
+module.exports = $logglyServiceFactory;

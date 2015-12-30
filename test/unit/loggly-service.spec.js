@@ -52,12 +52,6 @@ describe(`$loggly`, () => {
           .to
           .eql(['foo']);
       });
-
-      it(`should return the service`, () => {
-        expect($loggly.send('foo'))
-          .to
-          .equal($loggly);
-      });
     });
 
     describe(`$emit`, () => {

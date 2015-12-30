@@ -1,14 +1,15 @@
 'use strict';
 
-const {extend, isObject} = require('angular');
-let formatString;
+const {isFunction, isUndefined, bind, extend, isObject, forEach} = require(
+  'angular');
+const formatString = require('format');
+const isError = require('lodash.iserror');
 
 // @ngInject
-function $log($delegate, $loggly) {
+function $logDecorator($delegate, $loggly) {
   const {providerConfig} = $loggly.config;
   const levelMapping = providerConfig.levelMapping;
-  const timers = {};
-  const send = $loggly.send;
+  const timers = $delegate.$$timers = {};
 
   /**
    * Creates a function which calls Loggly, then passes thru to $log service.
@@ -17,11 +18,10 @@ function $log($delegate, $loggly) {
    * @returns {Function} New proxy function
    */
   function createProxy(methodName, originalMethod) {
-    const format = providerConfig.formatter.bind(null, methodName);
-    return function logglyLog(msg, ...args) {
-      if (msg instanceof Error && providerConfig.allowUncaught) {
-        send(format(msg));
-      } else {
+    const format = bind(null, providerConfig.formatter, methodName);
+
+    function logglyLog(msg, ...args) {
+      if (!isError(msg) || (isError(msg) && providerConfig.allowUncaught)) {
         let data;
         let desc;
         if (isObject(msg)) {
@@ -31,29 +31,32 @@ function $log($delegate, $loggly) {
           if (isObject(args[args.length - 1])) {
             data = args.pop();
           }
-          if (args.length) {
-            formatString = require('format');
-            desc = formatString(msg, ...args);
-          }
+          desc = formatString(msg, ...args);
         }
-        send(format(extend({desc}, data)));
+        const payload = isUndefined(desc) ? data : extend({desc}, data);
+        console.trace();
+
+        $loggly.send(format(payload));
       }
-      return originalMethod.call($delegate, msg);
-    };
+      return logglyLog.$$originalMethod.call(this, msg);
+    }
+
+    logglyLog.$$originalMethod = originalMethod;
+
+    return logglyLog;
   }
 
   /**
    * Starts a timer with given label.
    * @param {string} label Some label for the timer
    */
-  $delegate.timer = label => {
+  $delegate.timer = function timer(label = '__default__') {
     const timestamp = Date.now();
     timers[label] = timestamp;
-    $loggly.$emit('timer-started',
-      {
-        label,
-        timestamp
-      });
+    $loggly.$emit('timer-started', {
+      label,
+      timestamp
+    });
   };
 
   /**
@@ -62,36 +65,45 @@ function $log($delegate, $loggly) {
    * @param {(string|Object)} [desc] Log message, or just `data` object
    * @param {Object} [data] Extra data to send
    */
-  $delegate.timerEnd = (label, desc, data = {}) => {
-    const now = Date.now();
-    data.ms = now - (timers[label] || now);
-    delete timers[label];
-    if (isObject(desc)) {
-      data = desc;
-    } else {
-      extend(data, {desc});
-    }
-    $loggly.$emit('timer-stopped', {
-      label,
-      data
-    });
-    $delegate[providerConfig.timeLevel](label, data);
-  };
+  $delegate.timerEnd =
+    function timerEnd(label = '__default__', desc, data = {}) {
+      const now = Date.now();
+      if (isObject(label)) {
+        data = label;
+        label = '__default__';
+      }
+      data.ms = now - (timers[label] || now);
+      delete timers[label];
+      data = isUndefined(desc) ? data : extend({desc}, data);
+      $loggly.$emit('timer-stopped', {
+        label,
+        data
+      });
+      return this[levelMapping[providerConfig.timeLevel]](label, data);
+    };
 
   // ensure we have something for timerEnd() to use
   if (!levelMapping.hasOwnProperty(providerConfig.timeLevel)) {
     providerConfig.timeLevel = 'time';
-    levelMapping[providerConfig.timeLevel || 'time'] = 'log';
+    levelMapping.time = 'log';
   }
 
-  extend($delegate, Object.keys(levelMapping)
-    .map(function(methodName) {
-      const originalMethodName = levelMapping[methodName];
-      return createProxy(methodName,
-        $delegate[originalMethodName] || $delegate.log);
-    }));
+  // we need to save the reference to the original 'log' function,
+  // because it has properties which we'll need to move over to our proxy.
+  const log = $delegate.log;
+
+  forEach(levelMapping, (methodName, originalMethodName) => {
+    if (isFunction($delegate[originalMethodName])) {
+      $delegate[methodName] =
+        createProxy(methodName, $delegate[originalMethodName]);
+    }
+  });
+
+  // this takes the properties out of the original $log.log and stuffs them
+  // into the new one.
+  extend($delegate.log, log);
 
   return $delegate;
 }
 
-module.exports = $log;
+module.exports = $logDecorator;
