@@ -1,7 +1,10 @@
 {
   "name": "angular-loggly-mixin",
   "description": "AngularJS module to pass $log calls thru to Loggly",
-  "main": "dist/angular-loggly-mixin.js",
+  "main": [
+    "dist/angular-loggly-mixin.js",
+    "dist/angular-loggly-mixin.min.js"
+  ],
   "authors": [
     "Christopher Hiller <chiller@decipherinc.com>"
   ],
