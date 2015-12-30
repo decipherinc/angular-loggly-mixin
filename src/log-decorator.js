@@ -1,7 +1,15 @@
 'use strict';
 
-const {isFunction, isUndefined, bind, extend, isObject, forEach} = require(
-  'angular');
+const {
+  isDefined,
+  isFunction,
+  isUndefined,
+  bind,
+  extend,
+  isObject,
+  forEach
+  } = require('angular');
+
 const formatString = require('format');
 const isError = require('lodash.iserror');
 
@@ -61,25 +69,43 @@ function $logDecorator($delegate, $loggly) {
   /**
    * Ends a timer with given label.
    * @param {string} label Some label used via {@link $delegate.time}
-   * @param {(string|Object)} [desc] Log message, or just `data` object
-   * @param {Object} [data] Extra data to send
+   * @param {(string|Object)} [msg] Log message, or just `data` object
+   * @param {...*} [args] Extra data to send
    */
-  $delegate.timerEnd =
-    function timerEnd(label = '__default__', desc, data = {}) {
-      const now = Date.now();
-      if (isObject(label)) {
-        data = label;
-        label = '__default__';
+  $delegate.timerEnd = function timerEnd(label = '__default__', msg, ...args) {
+    const now = Date.now();
+    if (isObject(label)) {
+      msg = label;
+      label = '__default__';
+    }
+    const ms = now - (timers[label] || now);
+    let data;
+    if (isObject(msg)) {
+      data = msg;
+    } else {
+      if (args.length && isObject(args[args.length - 1])) {
+        data = args[args.length - 1];
+      } else {
+        data = {};
+        if (isDefined(msg)) {
+          args.push(data);
+        } else {
+          msg = data;
+        }
       }
-      data.ms = now - (timers[label] || now);
-      delete timers[label];
-      data = isUndefined(desc) ? data : extend({desc}, data);
-      $loggly.$emit('timer-stopped', {
-        label,
-        data
-      });
-      return this[levelMapping[providerConfig.timeLevel]](label, data);
-    };
+    }
+
+    delete timers[label];
+    $loggly.$emit('timer-stopped', {
+      label,
+      ms
+    });
+
+    data.ms = ms;
+    data.label = label;
+
+    return this[levelMapping[providerConfig.timeLevel]](msg, ...args);
+  };
 
   // ensure we have something for timerEnd() to use
   if (!levelMapping.hasOwnProperty(providerConfig.timeLevel)) {

@@ -232,10 +232,7 @@ describe(`$log decorator`, () => {
             .been
             .calledWithExactly('timer-stopped', {
               label: 'foo',
-              data: {
-                ms: ms,
-                desc: 'bar'
-              }
+              ms: ms
             });
         });
 
@@ -249,8 +246,9 @@ describe(`$log decorator`, () => {
               .to
               .have
               .been
-              .calledWithExactly('__default__', {
-                ms: $log.log.firstCall.args[1].ms
+              .calledWithExactly({
+                label: '__default__',
+                ms: $log.log.firstCall.args[0].ms
               });
           });
       });
@@ -265,9 +263,7 @@ describe(`$log decorator`, () => {
             .been
             .calledWithExactly('timer-stopped', {
               label: '__default__',
-              data: {
-                ms: 0
-              }
+              ms: 0
             });
         });
 
@@ -280,7 +276,8 @@ describe(`$log decorator`, () => {
             .to
             .have
             .been
-            .calledWithExactly('__default__', {
+            .calledWithExactly({
+              label: '__default__',
               ms: 0
             });
         });
@@ -297,8 +294,9 @@ describe(`$log decorator`, () => {
             .to
             .have
             .been
-            .calledWithExactly('__default__', {
-              ms: $log.log.firstCall.args[1].ms,
+            .calledWithExactly({
+              label: '__default__',
+              ms: $log.log.firstCall.args[0].ms,
               bar: 'baz'
             });
         });

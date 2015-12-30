@@ -103,33 +103,43 @@ angular.module('myModule', ['fv.loggly-mixin'])
   });
 ```
 
+## String Formatting
+
+If you don't have the luxury of ES2015 template strings, you can use the logging methods in a manner akin to `console.log()`:
+
+```js
+$log.info('The %s brown fox jumped over the %s dog', 'quick', 'lazy');
+```
+
 ## Timers
 
 Since `$log` has no timing functionality, and it's often useful to send timer information to Loggly, `$log` will now have two more functions:
 
-### $log.timer(label)
+### $log.timer([label])
 
-Starts a timer with the given `{string}` label.  Returns `undefined`.
+Starts a timer with the given `{string}` label, or label `__default__` if omitted.
 
-### $log.timerEnd(label, [desc], [data])
+Returns `undefined`.
 
-Ends the timer for `{string}` `label`, with an optional description `{string}` `desc` and optional data `{*}` `data`.  Sends a message to Loggly of the following format, where `{number}` `ms` is elapsed time in milliseconds:
+### $log.timerEnd([label], [msg], [...data])
+
+Ends the timer for `{string}` `label` (using `__default__` if omitted), with an optional description `{string}` `msg` and optional data `{*}` `data`.  Supports formatted strings, as noted above.
+
+Sends a message to Loggly of the following format, where `{number}` `ms` is elapsed time in milliseconds:
 
 ```js
 const msg = {
   level: 'time',
+  label: label,  
   ms: ms,
   desc: desc,
   data: data
 }
 ``` 
 
-If you've used `$logglyProvider.timerLevel()` to set a different level value, it will
-be used instead of `time`.
+If you've used `$logglyProvider.timerLevel()` to set a different level value, it will be used instead of `time`.
 
 Returns `undefined`.
-
-> Note: You can overwrite `timer()` and `timerEnd()` with the `levelMapping` configuration, if you want to.
 
 ## $loggly Service
 
@@ -155,7 +165,7 @@ Events are emitted (not broadcast) on `$rootScope`.
 
 - `fv.loggly-mixin:timer-started`: When a timer has been started via `$log.timer()`, this event is emitted with the `label` and a `timestamp` (from the epoch).
 
-- `fv.loggly-mixin:timer-stopped`: When a timer has ended via `$log.timerEnd()`, this event is emitted with the `label`, any description, extra data, and a `ms` field indicating elapsed time.
+- `fv.loggly-mixin:timer-stopped`: When a timer has ended via `$log.timerEnd()`, this event is emitted with an object having the `label` and a `ms` field indicating elapsed time.
 
 ## Installation
 
