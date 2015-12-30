@@ -125,6 +125,8 @@ be used instead of `time`.
 
 Returns `undefined`.
 
+> Note: You can overwrite `timer()` and `timerEnd()` with the `levelMapping` configuration, if you want to.
+
 ## $loggly Service
 
 A `$loggly` service is available, however, it's mostly for internal usage.  `$loggly`'s' main responsibility is to use the configuration as defined in `$logglyProvider` to initiate communcation with Loggly.
@@ -139,7 +141,7 @@ Returns the `$loggly` service, and is thusly chainable.
  
 ### config
 
-An `Object` representation of the configuration as set by `$logglyProvider` is available here.  Modifying it is *unsupported* at the time of this writing.
+An `Object` representation of the configuration as set by `$logglyProvider` is available here.  Modifying it at runtime is *unsupported* at the time of this writing.
 
 ## Events
 
@@ -153,19 +155,30 @@ Events are emitted (not broadcast) on `$rootScope`.
 
 ## Installation
 
-via [npm](https://www.npmjs.com/package/angular-loggly-mixin):
+### npm
 
 ```shell
 $ npm install angular angular-loggly-mixin
 ```
 
-via [bower](https://bower.io):
+This package requires AngularJS 1.2.0 or higher as a peer dependency.  AngularJS 2 is not supported at this time.
+
+To use with your favorite bundling tool:
+
+```js
+angular.module('myModule', [require('angular-loggly-mixin')])
+  .config($logglyProvider => {
+    $logglyProvider.logglyKey('your-key').decorate();  
+  });
+```
+
+### Bower
 
 ```shell
 $ bower install angular https://npmcdn.com/angular-loggly-mixin/bower.zip
 ```
 
-This package requires AngularJS 1.2.0 or higher.  AngularJS 2 is not supported at this time.
+PRO TIP: [Don't use Bower](https://medium.com/@kentcdodds/why-i-don-t-commit-generated-files-to-master-a4d76382564).
 
 ## Author
 
