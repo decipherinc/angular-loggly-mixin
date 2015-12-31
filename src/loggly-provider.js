@@ -18,15 +18,15 @@ function defaultFormatter(level = 'unknown', body = {}) {
 function $logglyProvider($provide, $$logglyMixinNamespace) {
   const logglyConfig = {
     logglyKey: '',
-    sendConsoleErrors: false,
-    tags: [],
+    sendConsoleErrors: true,
+    tag: '',
     useDomainProxy: false
   };
 
   const providerConfig = {
     allowUncaught: true,
     timerLevel: 'time',
-    logglyUrl: '//cloudfront.loggly.com/js/loggly.tracker.js',
+    logglyUrl: '//cloudfront.loggly.com/js/loggly.tracker-2.1.min.js',
     levelMapping: {
       debug: 'debug',
       log: 'log',
@@ -172,7 +172,7 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
      */
     tags(...values) {
       if (values.length) {
-        logglyConfig.tags = values.join(',');
+        logglyConfig.tag = values.join(',');
       }
       return this;
     },

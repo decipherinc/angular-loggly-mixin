@@ -173,7 +173,7 @@ describe(`$logglyProvider`, () => {
     describe(`tags()`, () => {
       it(`should set the tags used by Loggly`, () => {
         $logglyProvider.tags('foo', 'bar');
-        expect(getConfig('logglyConfig.tags'))
+        expect(getConfig('logglyConfig.tag'))
           .to
           .equal('foo,bar');
       });
