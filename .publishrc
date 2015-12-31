@@ -1,3 +1,4 @@
 {
-  "prepublishScript": "npm run test"
+  "prepublishScript": "npm run test",
+  "confirm": false
 }
