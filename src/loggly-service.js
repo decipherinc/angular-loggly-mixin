@@ -6,7 +6,7 @@ function $logglyServiceFactory(config) {
   const namespace = config.providerConfig.$namespace;
 
   // @ngInject
-  return function $logglyService($window, $document, $rootScope) {
+  return function $logglyService($window, $document, $injector) {
     $window._LTracker = [];
 
     return {
@@ -38,7 +38,8 @@ function $logglyServiceFactory(config) {
        * @returns {Object} Event object
        */
       $emit(event, ...data) {
-        return $rootScope.$emit(`${namespace}:${event}`, ...data);
+        return $injector.get('$rootScope')
+          .$emit(`${namespace}:${event}`, ...data);
       },
       /**
        * Sends data to Loggly by pushing to the tracker array.
