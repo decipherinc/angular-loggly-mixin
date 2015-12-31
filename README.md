@@ -45,7 +45,7 @@ angular.module('myModule', ['fv.loggly-mixin'])
       // whether to pass uncaught errors to Loggly
       .allowUncaught(true)
       // whether or not to allow Loggly to trap calls to console.error()
-      .sendConsoleErrors(false)
+      .sendConsoleErrors(true)
       // message formatting function.  accepts these two parameters
       // and should return an object.  use this to custom-tailor your
       // data.  
@@ -73,9 +73,9 @@ angular.module('myModule', ['fv.loggly-mixin'])
       // see "Timers" section below for more info.
       .timerLevel('time')
       // whether or not to use a domain proxy
-      .useDomainProxy(true)
-      // add one or more tags for Loggly
-      .tags('foo', 'bar', 'baz');     
+      .useDomainProxy(false)
+      // add one or more tags for Loggly; one per argument
+      .tags();     
 
     // in addition, a convenience method exists to map a method;
     // this causes `$log.foo()` to call `$log.log()`.  returns $logglyProvider
