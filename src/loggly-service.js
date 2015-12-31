@@ -6,7 +6,7 @@ function $logglyServiceFactory(config) {
   const namespace = config.providerConfig.$namespace;
 
   // @ngInject
-  return function $logglyService($window, $document, $injector) {
+  function $logglyService($window, $document, $injector) {
     $window._LTracker = [];
 
     return {
@@ -50,7 +50,9 @@ function $logglyServiceFactory(config) {
       },
       config
     };
-  };
+  }
+
+  return $logglyService;
 }
 
 module.exports = $logglyServiceFactory;
