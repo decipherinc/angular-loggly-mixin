@@ -16,7 +16,7 @@ const isError = require('lodash.iserror');
 // @ngInject
 function $logDecorator($delegate, $loggly) {
   const {providerConfig} = $loggly.config;
-  const levelMapping = providerConfig.levelMapping;
+  const aliases = providerConfig.aliases;
   const timers = $delegate.$$timers = {};
 
   /**
@@ -29,23 +29,25 @@ function $logDecorator($delegate, $loggly) {
     const format = bind(null, providerConfig.formatter, methodName);
 
     function logglyLog(msg, ...args) {
-      if (!isError(msg) || (isError(msg) && providerConfig.allowUncaught)) {
-        let data;
-        let desc;
-        if (isObject(msg)) {
-          data = msg;
-          desc = undefined;
-        } else {
-          if (isObject(args[args.length - 1])) {
-            data = args.pop();
+      if (providerConfig.levels[providerConfig.level] >= methodName) {
+        if (!isError(msg) || (isError(msg) && providerConfig.allowUncaught)) {
+          let data;
+          let desc;
+          if (isObject(msg)) {
+            data = msg;
+            desc = undefined;
+          } else {
+            if (isObject(args[args.length - 1])) {
+              data = args.pop();
+            }
+            desc = formatString(msg, ...args);
           }
-          desc = formatString(msg, ...args);
-        }
-        const payload = isUndefined(desc) ? data : extend({desc}, data);
+          const payload = isUndefined(desc) ? data : extend({desc}, data);
 
-        $loggly.send(format(payload));
+          $loggly.send(format(payload));
+        }
+        return logglyLog.$$originalMethod.call(this, msg);
       }
-      return logglyLog.$$originalMethod.call(this, msg);
     }
 
     logglyLog.$$originalMethod = originalMethod;
@@ -104,20 +106,20 @@ function $logDecorator($delegate, $loggly) {
     data.ms = ms;
     data.label = label;
 
-    return this[levelMapping[providerConfig.timeLevel]](msg, ...args);
+    return this[aliases[providerConfig.timeLevel]](msg, ...args);
   };
 
   // ensure we have something for timerEnd() to use
-  if (!levelMapping.hasOwnProperty(providerConfig.timeLevel)) {
+  if (!aliases.hasOwnProperty(providerConfig.timeLevel)) {
     providerConfig.timeLevel = 'time';
-    levelMapping.time = 'log';
+    aliases.time = 'log';
   }
 
   // we need to save the reference to the original 'log' function,
   // because it has properties which we'll need to move over to our proxy.
   const log = $delegate.log;
 
-  forEach(levelMapping, (methodName, originalMethodName) => {
+  forEach(aliases, (methodName, originalMethodName) => {
     if (isFunction($delegate[originalMethodName])) {
       $delegate[methodName] =
         createProxy(methodName, $delegate[originalMethodName]);

@@ -15,7 +15,7 @@ function defaultFormatter(level = 'unknown', body = {}) {
 }
 
 // @ngInject
-function $logglyProvider($provide, $$logglyMixinNamespace) {
+function $logglyProvider($$logglyMixinNamespace) {
   const logglyConfig = {
     logglyKey: '',
     sendConsoleErrors: true,
@@ -27,13 +27,22 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
     allowUncaught: true,
     timerLevel: 'time',
     logglyUrl: '//cloudfront.loggly.com/js/loggly.tracker-2.1.min.js',
-    levelMapping: {
+    aliases: {
       debug: 'debug',
       log: 'log',
       info: 'info',
       warn: 'warn',
       error: 'error',
       time: 'log'
+    },
+    level: 'debug',
+    levels: {
+      debug: 0,
+      log: 2,
+      info: 3,
+      time: 4,
+      warn: 5,
+      error: 6
     },
     formatter: defaultFormatter,
     $namespace: $$logglyMixinNamespace
@@ -90,9 +99,9 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
       return this;
     },
     /**
-     * Set the level mapping.  The level mapping is an object where the keys
-     * are the new method names, and the values are the method names in the
-     * original $log service.
+     * Set aliases for logging functions.  The `value` is an `Object` where the
+     * keys are the new method names, and the values are the method names in
+     * the original `$log` service.
      * @param {Object} [value] Level mapping
      * @this $logglyProvider
      * @returns {$logglyProvider} $logglyProvider
@@ -104,27 +113,27 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
      *     $log.omg('a terrible error!', {extra: 'data'});
      *   });
      */
-    levelMapping(value) {
+    aliases(value) {
       if (isObject(value)) {
-        extend(providerConfig.levelMapping, value);
+        extend(providerConfig.aliases, value);
       }
       return this;
     },
     /**
-     * Convenience method to map a level.
+     * Convenience method to create an alias to a logging function (in `$log`).
      * @param {string} [methodName='log'] New method name
      * @param {string} [originalMethodName='log'] Original method name
      * @this $logglyProvider
      * @returns {$logglyProvider} $logglyProvider
      */
-    mapLevel(methodName = 'log', originalMethodName = 'log') {
-      providerConfig.levelMapping[methodName] = originalMethodName;
+    alias(methodName = 'log', originalMethodName = 'log') {
+      providerConfig.aliases[methodName] = originalMethodName;
       return this;
     },
     /**
      * Use a custom formatting function to munge data before sending it
      * to Loggly.
-     * @param {Function} [func] Formatting function.  This function should
+     * @param {Function} [value] Formatting function.  This function should
      * accept two (2) parameters:
      * - `level`: The "level" of the $log call.  `debug`, `warn`, `error`, etc.
      * - `body`: An object containing the rest of the message body.  By default
@@ -136,19 +145,40 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
      * @this $logglyProvider
      * @returns {$logglyProvider} $logglyProvider
      */
-    formatter(func) {
-      if (isFunction(func)) {
-        providerConfig.formatter = func;
+    formatter(value) {
+      if (isFunction(value)) {
+        providerConfig.formatter = value;
       }
       return this;
     },
 
     /**
-     * Decorates $log with the configuration.  Must be called during
-     * config() phase.
+     * Sets the current log level.  Anything "lower" than this level will not
+     * be logged to Loggly, but *will* be output in the console.
+     * @param {string} [value] The log level.  Must be a key in the `levels`
+     * object.
+     * @this $logglyProvider
+     * @returns {$logglyProvider}
      */
-    decorate() {
-      $provide.decorator('$log', require('./log-decorator'));
+    level(value) {
+      if (isString(value) && providerConfig.levels[value]) {
+        providerConfig.level = value;
+      }
+      return this;
+    },
+
+    /**
+     * Redefine the log levels.
+     * @param {Object} [value] Log level enum.  This is an object mapping of
+     *   log levels to integers.
+     * @this $logglyProvider
+     * @returns {$logglyProvider}
+     */
+    levels(value) {
+      if (isObject(value)) {
+        providerConfig.levels = value;
+      }
+      return this;
     },
 
     /**
@@ -166,11 +196,12 @@ function $logglyProvider($provide, $$logglyMixinNamespace) {
 
     /**
      * Sets the tags Loggly will apply to all log messages
-     * @param {...string} [values] One or more tags to apply
+     * @param {(...string|...Array)} [values] One or more tags to apply
      * @this $logglyProvider
      * @returns {$logglyProvider}
      */
     tags(...values) {
+      values = require('array-flatten')(values);
       if (values.length) {
         logglyConfig.tag = values.join(',');
       }

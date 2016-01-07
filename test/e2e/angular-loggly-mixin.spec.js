@@ -4,8 +4,7 @@ var expect = chai.expect;
 
 angular.module('e2e', ['fv.loggly-mixin'])
   .config(function($logglyProvider) {
-    $logglyProvider.logglyUrl('')
-      .decorate();
+    $logglyProvider.logglyUrl('');
   });
 
 describe('e2e', function() {

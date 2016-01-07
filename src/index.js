@@ -7,8 +7,7 @@ const logglyMixin = angular.module(moduleName, []);
 logglyMixin
   .constant('$$logglyMixinNamespace', moduleName)
   .provider('$loggly', require('./loggly-provider'))
-  .run($loggly => {
-    $loggly.$bootstrap();
-  });
+  .config($provide => $provide.decorator('$log', require('./log-decorator')))
+  .run($loggly => $loggly.$bootstrap());
 
 module.exports = moduleName;

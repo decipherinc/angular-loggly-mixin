@@ -70,6 +70,7 @@
     "browserify-istanbul": "^0.2.1",
     "browserify-ngannotate": "^2.0.0",
     "chai": "^3.5.0",
+    "codeclimate-test-reporter": "^0.1.1",
     "coveralls": "^2.11.6",
     "dependency-check": "^2.5.1",
     "eslint": "^1.10.3",
@@ -103,6 +104,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "array-flatten": "^2.0.0",
     "format": "^0.2.2",
     "lodash.iserror": "^3.0.3"
   },

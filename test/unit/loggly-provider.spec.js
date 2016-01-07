@@ -6,14 +6,12 @@ describe(`$logglyProvider`, () => {
   const get = require('lodash.get');
 
   let $logglyProvider;
-  let $provide;
   let getConfig;
   let sandbox;
 
   beforeEach(() => {
-    mock.module(moduleName, (_$logglyProvider_, _$provide_) => {
+    mock.module(moduleName, _$logglyProvider_ => {
       $logglyProvider = _$logglyProvider_;
-      $provide = _$provide_;
       getConfig = partial(get, $logglyProvider.config);
     });
     mock.inject();
@@ -85,31 +83,31 @@ describe(`$logglyProvider`, () => {
       });
     });
 
-    describe(`levelMapping()`, () => {
-      it(`should extend the "levelMapping" prop`, () => {
-        $logglyProvider.levelMapping({foo: 'debug'});
-        expect(getConfig('providerConfig.levelMapping').foo)
+    describe(`aliases()`, () => {
+      it(`should extend the "aliases" prop`, () => {
+        $logglyProvider.aliases({foo: 'debug'});
+        expect(getConfig('providerConfig.aliases').foo)
           .to
           .equal('debug');
       });
 
       it(`should return the provider`, () => {
-        expect($logglyProvider.levelMapping())
+        expect($logglyProvider.aliases())
           .to
           .equal($logglyProvider);
       });
     });
 
-    describe(`mapLevel()`, () => {
+    describe(`alias()`, () => {
       it(`should overwrite a prop in "levelMapping" prop`, () => {
-        $logglyProvider.mapLevel('debug', 'warn');
-        expect(getConfig('providerConfig.levelMapping').debug)
+        $logglyProvider.alias('debug', 'warn');
+        expect(getConfig('providerConfig.aliases').debug)
           .to
           .equal('warn');
       });
 
       it(`should return the provider`, () => {
-        expect($logglyProvider.mapLevel())
+        expect($logglyProvider.alias())
           .to
           .equal($logglyProvider);
       });
@@ -158,18 +156,6 @@ describe(`$logglyProvider`, () => {
       });
     });
 
-    describe(`decorate()`, () => {
-      it(`should call $provide.decorate()`, () => {
-        sandbox.stub($provide, 'decorator');
-        $logglyProvider.decorate();
-        expect($provide.decorator)
-          .to
-          .have
-          .been
-          .calledWithExactly('$log', require('../../src/log-decorator'));
-      });
-    });
-
     describe(`tags()`, () => {
       it(`should set the tags used by Loggly`, () => {
         $logglyProvider.tags('foo', 'bar');
@@ -195,6 +181,38 @@ describe(`$logglyProvider`, () => {
         expect($logglyProvider.useDomainProxy())
           .to
           .equal($logglyProvider);
+      });
+    });
+
+    describe(`level()`, () => {
+      it(`should set the "level" property of the provider config`, () => {
+        $logglyProvider.level('warn');
+        expect(getConfig('providerConfig.level'))
+          .to
+          .equal('warn');
+      });
+
+      it(`should return the instance`, () => {
+        expect($logglyProvider.level())
+          .to
+          .equal($logglyProvider);
+      });
+    });
+
+    describe(`levels()`, () => {
+      it(`should set the "levels" property of the provider config`, () => {
+        $logglyProvider.levels({
+          debug: 0,
+          info: 1
+        });
+        expect(getConfig('providerConfig.levels')).to.eql({
+          debug: 0,
+          info: 1
+        });
+      });
+
+      it(`should return the instance`, () => {
+        expect($logglyProvider.levels()).to.equal($logglyProvider);
       });
     });
   });

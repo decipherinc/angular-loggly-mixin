@@ -15,7 +15,7 @@ describe(`$log decorator`, () => {
       send: sandbox.stub(),
       config: {
         providerConfig: {
-          levelMapping: {
+          aliases: {
             log: 'log',
             info: 'foo'
           },
@@ -43,7 +43,7 @@ describe(`$log decorator`, () => {
       () => {
         const $logClone = extend({}, $log);
         $logDecorator($log, $loggly);
-        forEach($loggly.config.providerConfig.levelMapping,
+        forEach($loggly.config.providerConfig.aliases,
           (methodName, originalMethodName) => {
             expect($log[methodName])
               .to
@@ -69,7 +69,7 @@ describe(`$log decorator`, () => {
       });
 
       it(`should set the level mapping from 'time' to 'log'`, () => {
-        expect($loggly.config.providerConfig.levelMapping.time)
+        expect($loggly.config.providerConfig.aliases.time)
           .to
           .equal('log');
       });
@@ -240,7 +240,7 @@ describe(`$log decorator`, () => {
           () => {
             const providerConfig = $loggly.config.providerConfig;
             sandbox.spy($log,
-              providerConfig.levelMapping[providerConfig.timeLevel]);
+              providerConfig.aliases[providerConfig.timeLevel]);
             $log.timerEnd();
             expect($log.log)
               .to
@@ -270,7 +270,7 @@ describe(`$log decorator`, () => {
         it(`should call the configured method with a zero ms property`, () => {
           const providerConfig = $loggly.config.providerConfig;
           sandbox.spy($log,
-            providerConfig.levelMapping[providerConfig.timeLevel]);
+            providerConfig.aliases[providerConfig.timeLevel]);
           $log.timerEnd();
           expect($log.log)
             .to
@@ -287,7 +287,7 @@ describe(`$log decorator`, () => {
         it(`should use the description as the data`, () => {
           const providerConfig = $loggly.config.providerConfig;
           sandbox.spy($log,
-            providerConfig.levelMapping[providerConfig.timeLevel]);
+            providerConfig.aliases[providerConfig.timeLevel]);
           $log.timer();
           $log.timerEnd({bar: 'baz'});
           expect($log.log)
