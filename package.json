@@ -87,7 +87,7 @@
     "karma-mocha-reporter": "^1.1.5",
     "karma-phantomjs-launcher": "^0.2.3",
     "lodash.get": "^3.7.0",
-    "lodash.partial": "^3.1.1",
+    "lodash.partial": "^4.0.0",
     "mkdirp": "^0.5.1",
     "mocha": "^2.3.4",
     "npm-parallel": "boneskull/npm-parallel#boneskull-patch-1",
