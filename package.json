@@ -70,7 +70,7 @@
     "browserify-istanbul": "^0.2.1",
     "browserify-ngannotate": "^2.0.0",
     "chai": "^3.4.1",
-    "codeclimate-test-reporter": "^0.1.1",
+    "codeclimate-test-reporter": "^0.2.1",
     "coveralls": "^2.11.6",
     "dependency-check": "^2.5.1",
     "eslint": "^1.10.3",
