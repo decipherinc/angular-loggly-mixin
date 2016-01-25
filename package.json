@@ -92,7 +92,7 @@
     "mocha": "^2.3.4",
     "npm-parallel": "boneskull/npm-parallel#boneskull-patch-1",
     "nsp": "^2.2.0",
-    "phantomjs": "^1.9.19",
+    "phantomjs": "^2.1.2",
     "pre-commit": "^1.1.2",
     "publish-please": "^1.1.0",
     "rimraf": "^2.5.0",
