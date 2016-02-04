@@ -2,7 +2,7 @@
 
 > AngularJS module to pass $log calls thru to Loggly
 
-[![Travis CI](https://travis-ci.org/decipherinc/angular-loggly-mixin.svg)](https://travis-ci.org/decipherinc/angular-loggly-mixin) [![Code Climate](https://codeclimate.com/github/decipherinc/angular-loggly-mixin/badges/gpa.svg)](https://codeclimate.com/github/decipherinc/angular-loggly-mixin) [![Coveralls](https://coveralls.io/repos/decipherinc/angular-loggly-mixin/badge.svg?branch=master&service=github)](https://coveralls.io/github/decipherinc/angular-loggly-mixin?branch=master) [![Codeship](https://codeship.com/projects/fecb5830-9753-0133-5240-02c848466e78/status?branch=master)]
+[![Travis CI](https://travis-ci.org/decipherinc/angular-loggly-mixin.svg)](https://travis-ci.org/decipherinc/angular-loggly-mixin) [![Code Climate](https://codeclimate.com/github/decipherinc/angular-loggly-mixin/badges/gpa.svg)](https://codeclimate.com/github/decipherinc/angular-loggly-mixin) [![Coveralls](https://coveralls.io/repos/decipherinc/angular-loggly-mixin/badge.svg?branch=master&service=github)](https://coveralls.io/github/decipherinc/angular-loggly-mixin?branch=master)
 
 ## Summary
 
