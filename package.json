@@ -100,7 +100,7 @@
     "sinon-chai": "^2.8.0",
     "uglifyify": "^3.0.1",
     "updtr": "^0.1.7",
-    "wallabify": "0.0.12"
+    "wallabify": "0.0.13"
   },
   "dependencies": {
     "format": "^0.2.1",
