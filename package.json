@@ -62,7 +62,7 @@
     "angular-mocks": "^1.4.9",
     "babel-cli": "^6.4.5",
     "babel-core": "^6.4.5",
-    "babel-eslint": "^4.1.8",
+    "babel-eslint": "^5.0.0",
     "babel-preset-es2015": "^6.3.13",
     "babelify": "^7.2.0",
     "bannerify": "github:vekat/bannerify",
