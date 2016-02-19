@@ -99,7 +99,7 @@
     "sinon-chai": "^2.8.0",
     "uglifyify": "^3.0.1",
     "updtr": "^0.1.7",
-    "wallabify": "0.0.13",
+    "wallabify": "0.0.14",
     "watchify": "^3.7.0"
   },
   "dependencies": {
