@@ -67,7 +67,7 @@
     "babelify": "^7.2.0",
     "bannerify": "github:vekat/bannerify",
     "browserify": "^13.0.0",
-    "browserify-istanbul": "^0.2.1",
+    "browserify-istanbul": "^1.0.0",
     "browserify-ngannotate": "^2.0.0",
     "chai": "^3.5.0",
     "coveralls": "^2.11.6",
