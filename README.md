@@ -191,7 +191,7 @@ angular.module('myModule', [require('angular-loggly-mixin')])
 ### Bower
 
 ```shell
-$ bower install angular https://npmcdn.com/angular-loggly-mixin/bower.zip
+$ bower install angular https://unpkg.com/angular-loggly-mixin/bower.zip
 ```
 
 PRO TIP: [Don't use Bower](https://medium.com/@kentcdodds/why-i-don-t-commit-generated-files-to-master-a4d76382564).
